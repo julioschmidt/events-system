@@ -19,22 +19,27 @@ app.use(morgan('combined', { stream: logStream }));  // 'combined' é um formato
 const proxyOptions = { 
   changeOrigin: true,
   on: {
-    proxyReq: (proxyReq: any, req: any, res: any) => {
-      // Passar body
-      if (req.body) {
+    proxyReq: (proxyReq: any, req: any) => {
+      if (req.body && req.method === 'POST' || req.method === 'PUT') {
         const bodyData = JSON.stringify(req.body);
+        // Certifique-se de que o body não foi lido antes
         proxyReq.setHeader('Content-Type', 'application/json');
         proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
         proxyReq.write(bodyData);
       }
-      
+
       // Preservar headers de autenticação
       if (req.headers['authorization']) {
         proxyReq.setHeader('Authorization', req.headers['authorization']);
       }
+    },
+    error: (err: any, req:any , res:any ) => {
+      console.error('Proxy error:', err);
+      res.status(500).json({ message: 'Proxy error', error: err.message });
     }
   }
 };
+
 
 app.use('/api/users', createProxyMiddleware({
   ...proxyOptions,
