@@ -228,9 +228,8 @@ registrationRouter.post('/', verifyToken, async (req, res) => {
 
     const registrationExists = await Registration.findOne({where: {userId, eventId}});
 
-    /* if (registrationExists) {
-      return res.status(200).send('Usuário já inscrito no evento');
-    } */
+    console.log(registrationExists);
+    console.log(userId, eventId, status);
 
     if (registrationExists && registrationExists.get('status') == status) {
       return res.status(200).send('Usuário já inscrito no evento');
