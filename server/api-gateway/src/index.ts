@@ -25,10 +25,10 @@ const createProxyOptions = (target: string) => ({
       console.log(`Proxying request to ${target}${req.url}`);
       proxyReq.setHeader('Content-Type', 'application/json');
 
-      /* if (req.body && (req.method === 'POST' || req.method === 'PUT')) {
+      if (req.body && (req.method === 'POST' || req.method === 'PUT')) {
         const bodyData = JSON.stringify(req.body);
         proxyReq.write(bodyData);
-      } */
+      }
 
       if (req.headers['authorization']) {
         proxyReq.setHeader('Authorization', req.headers['authorization']);
