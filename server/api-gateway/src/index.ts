@@ -38,27 +38,27 @@ const proxyOptions = {
 
 app.use('/api/users', createProxyMiddleware({
   ...proxyOptions,
-  target: url + '3001/users'
+  target: 'http://user-service:3001/users'
 }));
 
 app.use('/api/events', createProxyMiddleware({
   ...proxyOptions,
-  target: url + '3002/events'
+  target: 'http://event-service:3001/events'
 }));
 
 app.use('/api/registrations', createProxyMiddleware({
   ...proxyOptions,
-  target: url + '3002/registrations'
+  target: 'http://event-service:3001/registrations'
 }));
 
 app.use('/api/certificates', createProxyMiddleware({
   ...proxyOptions,
-  target: url + '3003/certificates'
+  target: 'http://certificate-service:3001/certificates'
 }));
 
 app.use('/api/mails', createProxyMiddleware({
   ...proxyOptions,
-  target: url + '3003/mails'
+  target: 'http://certificate-service:3001/mails'
 }));
 
 // Inicia o servidor na porta 3000
