@@ -31,6 +31,16 @@ services:
     environment:
       - DATABASE_URL=postgres://user:root@postgres:5432/mydb
 
+  certificate-service:
+    build:
+      context: ./certificate-service
+    ports:
+      - "3003:3003"
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgres://user:root@postgres:5432/mydb
+
   postgres:
     image: postgres:latest
     environment:
