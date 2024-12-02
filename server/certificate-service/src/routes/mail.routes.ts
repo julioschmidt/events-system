@@ -71,7 +71,7 @@ mailRouter.post('/', verifyToken, async (req, res) => {
           email = await sendCancelationEmail(eventTitle, eventDate, userEmail);
           break;
         case 'certificate':
-          const userMail = req.user!.email;
+          const userMailCertificate = req.user!.email;
 
           const certificate = await Certificate.findOne({ where: { userId, eventId }, raw: true });
 
@@ -79,7 +79,7 @@ mailRouter.post('/', verifyToken, async (req, res) => {
             return res.status(404).send('Certificado não encontrado');
           }
 
-          email = await sendCertificateEmail(userEmail, certificate.certificadoCode);
+          email = await sendCertificateEmail(userMailCertificate, certificate.certificadoCode);
           break;
       }
       res.json(email);

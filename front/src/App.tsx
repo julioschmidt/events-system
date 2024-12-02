@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import {
   BrowserRouter as Router,
@@ -15,15 +16,38 @@ import Home from './pages/Home';
 import UserRegistrations from './pages/UserRegistrations';
 import UserCheckins from './pages/UserCheckins';
 import ValidateCertificate from './pages/ValidateCertificate';
+import { jwtDecode } from 'jwt-decode';
 
 // Simulação de autenticação
 const isAuthenticated = () => {
   return !!localStorage.getItem('token'); // Verifica se existe um token no localStorage
 };
 
+const isAdmin = () => {
+  const token = localStorage.getItem('token');
+
+  if (token) {
+    try {
+      const decodedToken = jwtDecode<any>(token); // Altere <any> para o tipo correto se souber
+      const admin = decodedToken?.admin || false; // Verifica se a chave admin está no token
+      return admin;
+    } catch (decodeError) {
+      console.error('Erro ao decodificar o token:', decodeError);
+      return false;
+    }
+  } else {
+    console.error('Token não encontrado no localStorage');
+    return false;
+  }
+};
+
 // Rota protegida
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   return isAuthenticated() ? children : <Navigate to="/login" />;
+};
+
+const PrivateAdminRoute = ({ children }: { children: React.ReactNode }) => {
+  return isAdmin() ? children : <Navigate to="/" />;
 };
 
 function App() {
@@ -42,9 +66,9 @@ function App() {
         <Route
           path="/admin"
           element={
-            <PrivateRoute>
+            <PrivateAdminRoute>
               <Admin />
-            </PrivateRoute>
+            </PrivateAdminRoute>
           }
         />
         <Route
@@ -66,9 +90,9 @@ function App() {
         <Route
           path="/events/details/:id/admin"
           element={
-            <PrivateRoute>
+            <PrivateAdminRoute>
               <EventDetailsAdmin />
-            </PrivateRoute>
+            </PrivateAdminRoute>
           }
         />
         <Route

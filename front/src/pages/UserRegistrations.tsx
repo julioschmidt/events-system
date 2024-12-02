@@ -57,7 +57,7 @@ const UserRegistrations: React.FC = () => {
       const registration = registrations.find(
         (reg) => reg.id === registrationId
       );
-      const userEmail = getUserEmailById(user!.id);
+      const userEmail = await getUserEmailById(user!.id);
       await api.post('/mails', {
         type: 'cancelation',
         eventTitle: registration!.event!.title,
