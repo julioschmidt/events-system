@@ -44,16 +44,19 @@ registrationRouter.post('/', verifyToken, async (req, res) => {
 
     if (registrationExists && registrationExists.get('status') == status) {
       return res.status(200).send('Usuário já inscrito no evento');
-    } else if (registrationExists && registrationExists.status != status) {
+    } 
+    
+    if (registrationExists && registrationExists.status != status) {
       await Registration.update(
         { status },
         { where: { id: registrationExists.get('id') } }
       );
       return res.status(200).send('Status de inscrição atualizado');
-    } else {
-      const registration = await Registration.create({userId, eventId, status: status ?? 'ACTIVE'});
-      res.json(registration);
     }
+    
+    const registration = await Registration.create({ userId, eventId, status: status ?? 'ACTIVE' });
+    return res.json(registration);
+    
   } catch (error) {
     console.log(error)
     res.status(500).send('Erro ao acessar o banco de dados');
