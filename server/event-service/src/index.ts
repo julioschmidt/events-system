@@ -5,10 +5,12 @@ import registrationRouter from './routes/registration.routes';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import path from 'path';
+import cors from 'cors';
 
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 app.use('/events', eventRouter);
 app.use('/registrations', registrationRouter);
 const swaggerOptions = {
