@@ -57,11 +57,11 @@ const createProxyOptions = (target: string) => ({
 });
 
 // Configuração dos proxies com URLs completas e corretas
-app.use('/api/users', createProxyMiddleware(createProxyOptions('http://user-service:3001')));
-app.use('/api/events', createProxyMiddleware(createProxyOptions('http://event-service:3002')));
-app.use('/api/registrations', createProxyMiddleware(createProxyOptions('http://event-service:3002')));
-app.use('/api/certificates', createProxyMiddleware(createProxyOptions('http://certificate-service:3003')));
-app.use('/api/mails', createProxyMiddleware(createProxyOptions('http://certificate-service:3003')));
+app.use('/api/users', createProxyMiddleware(createProxyOptions('http://user-service:3001/users')));
+app.use('/api/events', createProxyMiddleware(createProxyOptions('http://event-service:3002/events')));
+app.use('/api/registrations', createProxyMiddleware(createProxyOptions('http://event-service:3002/registrations')));
+app.use('/api/certificates', createProxyMiddleware(createProxyOptions('http://certificate-service:3003/certificates')));
+app.use('/api/mails', createProxyMiddleware(createProxyOptions('http://certificate-service:3003/mails')));
 
 // Rota de teste para verificar se o gateway está funcionando
 app.get('/', (req, res) => {
