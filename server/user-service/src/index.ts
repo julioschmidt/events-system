@@ -4,10 +4,12 @@ import sequelize from './database.connection';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import path from 'path';
+import cors from 'cors';
 
 const app = express();
 
 app.use(express.json()); // Para analisar o corpo da requisição como JSON
+app.use(cors());
 app.use('/users', userRouter);
 const swaggerOptions = {
   swaggerDefinition: {
