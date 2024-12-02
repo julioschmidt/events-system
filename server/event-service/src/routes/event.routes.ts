@@ -20,6 +20,7 @@ const eventRouter = Router();
  */
 eventRouter.get('/', verifyToken, async (req, res) => {
   try {
+    console.log('Acessando a rota de eventos');
     const events = await Event.findAll();
     res.json(events);
   } catch (error) {
