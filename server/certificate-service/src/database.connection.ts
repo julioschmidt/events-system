@@ -3,10 +3,10 @@ import { Sequelize } from 'sequelize';
 // Configuração do Sequelize
 const sequelize = new Sequelize(
     "mydb",
-    "postgres",
+    "user",
     "root",
   {
-    host: "localhost",
+    host: "177.44.248.73",
     dialect: 'postgres',
     port: Number("5432"),
   }

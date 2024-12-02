@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api/checkin';
+const API_URL = 'http://177.44.248.73:3000/api/checkin';
 
 export const checkinService = {
   checkin: async (data: { userId: number; eventId: number }) => {
