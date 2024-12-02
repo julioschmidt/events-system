@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import fs from 'fs';  // Importando o módulo fs
 import { createProxyMiddleware, Options } from 'http-proxy-middleware';
 
+const url = 'http://177.44.248.73'
 const app = express();
 
 // Cria o stream de escrita para o arquivo de log
@@ -37,27 +38,27 @@ const proxyOptions = {
 
 app.use('/api/users', createProxyMiddleware({
   ...proxyOptions,
-  target: 'http://localhost:3001/users'
+  target: url + '3001/users'
 }));
 
 app.use('/api/events', createProxyMiddleware({
   ...proxyOptions,
-  target: 'http://localhost:3002/events'
+  target: url + '3002/events'
 }));
 
 app.use('/api/registrations', createProxyMiddleware({
   ...proxyOptions,
-  target: 'http://localhost:3002/registrations'
+  target: url + '3002/registrations'
 }));
 
 app.use('/api/certificates', createProxyMiddleware({
   ...proxyOptions,
-  target: 'http://localhost:3003/certificates'
+  target: url + '3003/certificates'
 }));
 
 app.use('/api/mails', createProxyMiddleware({
   ...proxyOptions,
-  target: 'http://localhost:3003/mails'
+  target: url + '3003/mails'
 }));
 
 // Inicia o servidor na porta 3000
