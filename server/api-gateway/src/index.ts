@@ -17,12 +17,7 @@ const createProxyOptions = (target: string) => ({
   target: target,
   changeOrigin: true,
   pathRewrite: {
-    // Remove '/api' do início da rota
-    '^/api/users': '/users',
-    '^/api/events': '/events',
-    '^/api/registrations': '/registrations',
-    '^/api/certificates': '/certificates',
-    '^/api/mails': '/mails'
+    '^/api': '',
   },
   on: {
     proxyReq: (proxyReq: any, req: any) => {
