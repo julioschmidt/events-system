@@ -23,11 +23,10 @@ const createProxyOptions = (target: string) => ({
     proxyReq: (proxyReq: any, req: any) => {
       // Log para debug
       console.log(`Proxying request to ${target}${req.url}`);
+      proxyReq.setHeader('Content-Type', 'application/json');
 
-/*       if (req.body && (req.method === 'POST' || req.method === 'PUT')) {
+      /* if (req.body && (req.method === 'POST' || req.method === 'PUT')) {
         const bodyData = JSON.stringify(req.body);
-        proxyReq.setHeader('Content-Type', 'application/json');
-        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
         proxyReq.write(bodyData);
       } */
 
