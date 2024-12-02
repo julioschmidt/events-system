@@ -3,7 +3,7 @@ import { Sequelize } from 'sequelize';
 // Configuração do Sequelize
 const sequelize = new Sequelize(
     "mydb",
-    "user",
+    "postgres",
     "root",
   {
     host: "postgres",
