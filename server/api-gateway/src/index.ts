@@ -1,40 +1,34 @@
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import fs from 'fs';  // Importando o módulo fs
+import fs from 'fs';
 import { createProxyMiddleware, Options } from 'http-proxy-middleware';
 
-const url = 'http://177.44.248.73'
 const app = express();
 
-// Cria o stream de escrita para o arquivo de log
-const logStream = fs.createWriteStream('access.log', { flags: 'a' }); // O 'a' garante que o arquivo será aberto para anexar novos logs
+const logStream = fs.createWriteStream('access.log', { flags: 'a' });
 
 app.use(cors());
 app.use(express.json());
+app.use(morgan('combined', { stream: logStream }));
 
-// Usando o morgan para registrar as requisições, salvando no arquivo de log
-app.use(morgan('combined', { stream: logStream }));  // 'combined' é um formato padrão e bem detalhado
-
-const proxyOptions = { 
+// Função para criar opções de proxy
+const createProxyOptions = (target: string) => ({
+  target: target,
   changeOrigin: true,
-  // Adicione estas configurações importantes
-  router: {
-    '/api/users': 'http://user-service:3001',
-    '/api/events': 'http://event-service:3002',
-    '/api/registrations': 'http://event-service:3002',
-    '/api/certificates': 'http://certificate-service:3003',
-    '/api/mails': 'http://certificate-service:3003'
-  },
   pathRewrite: {
+    // Remove '/api' do início da rota
     '^/api/users': '/users',
     '^/api/events': '/events',
-    '^/api/registrations': '/registrations', 
+    '^/api/registrations': '/registrations',
     '^/api/certificates': '/certificates',
     '^/api/mails': '/mails'
   },
   on: {
     proxyReq: (proxyReq: any, req: any) => {
+      // Log para debug
+      console.log(`Proxying request to ${target}${req.url}`);
+
       if (req.body && (req.method === 'POST' || req.method === 'PUT')) {
         const bodyData = JSON.stringify(req.body);
         proxyReq.setHeader('Content-Type', 'application/json');
@@ -47,19 +41,48 @@ const proxyOptions = {
       }
     },
     error: (err: any, req: any, res: any) => {
-      console.error('Proxy error:', err);
-      res.status(500).json({ message: 'Proxy error', error: err.message });
+      console.error('Proxy Error Details:', {
+        message: err.message,
+        stack: err.stack,
+        code: err.code,
+        target: err.target
+      });
+
+      // Verificar se res existe antes de usar
+      if (res && res.status) {
+        res.status(500).json({ 
+          message: 'Proxy error', 
+          error: err.message 
+        });
+      } else {
+        console.error('Response object is undefined');
+      }
     }
   }
-};
+});
 
-app.use('/api/users', createProxyMiddleware(proxyOptions));
-app.use('/api/events', createProxyMiddleware(proxyOptions));
-app.use('/api/registrations', createProxyMiddleware(proxyOptions));
-app.use('/api/certificates', createProxyMiddleware(proxyOptions));
-app.use('/api/mails', createProxyMiddleware(proxyOptions));
+// Configuração dos proxies com URLs completas e corretas
+app.use('/api/users', createProxyMiddleware(createProxyOptions('http://user-service:3001')));
+app.use('/api/events', createProxyMiddleware(createProxyOptions('http://event-service:3002')));
+app.use('/api/registrations', createProxyMiddleware(createProxyOptions('http://event-service:3002')));
+app.use('/api/certificates', createProxyMiddleware(createProxyOptions('http://certificate-service:3003')));
+app.use('/api/mails', createProxyMiddleware(createProxyOptions('http://certificate-service:3003')));
 
-// Inicia o servidor na porta 3000
-app.listen(3000, () => {
-  console.log('API Gateway rodando na porta 3000');
+// Rota de teste para verificar se o gateway está funcionando
+app.get('/', (req, res) => {
+  res.json({ message: 'API Gateway is running' });
+});
+
+// Tratamento de erros global
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error('Unhandled Error:', err);
+  res.status(500).json({ 
+    message: 'Internal server error', 
+    error: err.message 
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`API Gateway rodando na porta ${PORT}`);
 });
