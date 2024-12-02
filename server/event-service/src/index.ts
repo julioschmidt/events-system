@@ -20,7 +20,7 @@ const swaggerOptions = {
       description: 'Documentação da API',
     },
   },
-  apis: [path.join(__dirname, 'routes/*.ts')], // Caminho para arquivos com comentários JSDoc
+  apis: [path.join(__dirname, 'routes/*.ts'), path.join(__dirname, 'routes/*.js')], // Caminho para arquivos com comentários JSDoc
 };
 
 const swaggerSpec = swaggerJSDoc(swaggerOptions);
