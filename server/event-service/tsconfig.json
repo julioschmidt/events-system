@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",                         // Compilar para a versão moderna do JavaScript
+    "module": "commonjs",                       // Usar CommonJS para módulos, comum em Node.js
+    "moduleResolution": "node",                 // Resolver módulos como Node.js faz
+    "outDir": "./dist",                         // Diretório de saída para os arquivos compilados
+    "rootDir": "./src",                         // Diretório onde estão os arquivos TypeScript de origem
+    "strict": true,                             // Ativar todas as checagens de tipo estritas
+    "esModuleInterop": true,                    // Habilitar importação de módulos do CommonJS
+    "skipLibCheck": true,                       // Ignorar checagem de tipos em arquivos de definição de biblioteca
+    "forceConsistentCasingInFileNames": true,   // Garantir consistência no uso de maiúsculas e minúsculas nos nomes de arquivos
+    "resolveJsonModule": true,                  // Permitir importação de arquivos JSON
+    "noImplicitAny": true,                      // Não permitir uso do tipo 'any' implicitamente
+    "allowJs": true,                            // Permitir que arquivos JavaScript sejam compilados
+    "downlevelIteration": true,                 // Suporte a iteração em objetos mais antigos, como Maps e Sets
+    "baseUrl": ".",                             // Base para resolução de módulos
+    "paths": {
+      "*": ["node_modules/*", "src/types/*"]    // Resolver módulos e tipos personalizados
+    }
+  },
+  "include": [
+    "src/**/*.ts"                            // Incluir todos os arquivos TypeScript na pasta src
+  ],
+  "exclude": [
+    "node_modules",                             // Excluir a pasta node_modules
+    "dist"                                      // Excluir a pasta dist (arquivos compilados)
+  ]
+}

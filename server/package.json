@@ -1,0 +1,20 @@
+{
+    "name": "microservices-project",
+    "version": "1.0.0",
+    "scripts": {
+        "dev": "concurrently \"npm run dev --workspace api-gateway\" \"npm run dev --workspace user-service\" \"npm run dev --workspace event-service\" \"npm run dev --workspace certificate-service\"",
+        "build": "concurrently \"npm run build --workspace api-gateway\" \"npm run build --workspace user-service\" \"npm run build --workspace event-service\" \"npm run build --workspace certificate-service\"",
+        "start": "concurrently \"npm run start --workspace api-gateway\" \"npm run start --workspace user-service\" \"npm run start --workspace event-service\" \"npm run start --workspace certificate-service\"",
+        "docker:up": "docker-compose up --build",
+        "docker:down": "docker-compose down"
+    },
+    "devDependencies": {
+        "concurrently": "^7.6.0"
+    },
+    "workspaces": [
+        "api-gateway",
+        "user-service",
+        "event-service",
+        "certificate-service"
+    ]
+}

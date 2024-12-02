@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgres://user:root@postgres:5432/mydb
+
+  user-service:
+    build:
+      context: ./user-service
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgres://user:root@postgres:5432/mydb
+
+  event-service:
+    build:
+      context: ./event-service
+    ports:
+      - "3002:3002"
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgres://user:root@postgres:5432/mydb
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: mydb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
