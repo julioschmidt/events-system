@@ -8,6 +8,60 @@ const registrationRouter = Router();
 
 /**
  * @swagger
+ * /registrations:
+ *   post:
+ *     summary: Realiza a inscrição de um usuário em um evento
+ *     tags: [Inscrições]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *               eventId:
+ *                 type: integer
+ *               status:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Inscrição realizada com sucesso
+ *       500:
+ *         description: Erro ao realizar inscrição
+ */
+registrationRouter.post('/', verifyToken, async (req, res) => {
+  try {
+    const {userId, eventId, status} = req.body;
+
+    const registrationExists = await Registration.findOne({where: {userId, eventId}});
+
+    console.log(registrationExists);
+    console.log(userId, eventId, status);
+
+    if (registrationExists && registrationExists.get('status') == status) {
+      return res.status(200).send('Usuário já inscrito no evento');
+    } else if (registrationExists && registrationExists.status != status) {
+      await Registration.update(
+        { status },
+        { where: { id: registrationExists.get('id') } }
+      );
+      return res.status(200).send('Status de inscrição atualizado');
+    } else {
+      const registration = await Registration.create({userId, eventId, status: status ?? 'ACTIVE'});
+      res.json(registration);
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).send('Erro ao acessar o banco de dados');
+  }
+});
+
+/**
+ * @swagger
  * /registrations/checkin:
  *   post:
  *     summary: Realiza o check-in de um usuário em um evento
@@ -191,60 +245,6 @@ registrationRouter.get('/:userId', verifyToken, async (req, res) => {
     res.json(registration);
   } catch (error) {
     console.log(error);
-    res.status(500).send('Erro ao acessar o banco de dados');
-  }
-});
-
-/**
- * @swagger
- * /registrations:
- *   post:
- *     summary: Realiza a inscrição de um usuário em um evento
- *     tags: [Inscrições]
- *     security:
- *       - BearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               userId:
- *                 type: integer
- *               eventId:
- *                 type: integer
- *               status:
- *                 type: string
- *     responses:
- *       200:
- *         description: Inscrição realizada com sucesso
- *       500:
- *         description: Erro ao realizar inscrição
- */
-registrationRouter.post('/', verifyToken, async (req, res) => {
-  try {
-    const {userId, eventId, status} = req.body;
-
-    const registrationExists = await Registration.findOne({where: {userId, eventId}});
-
-    console.log(registrationExists);
-    console.log(userId, eventId, status);
-
-    if (registrationExists && registrationExists.get('status') == status) {
-      return res.status(200).send('Usuário já inscrito no evento');
-    } else if (registrationExists && registrationExists.status != status) {
-      await Registration.update(
-        { status },
-        { where: { id: registrationExists.get('id') } }
-      );
-      return res.status(200).send('Status de inscrição atualizado');
-    } else {
-      const registration = await Registration.create({userId, eventId, status: status ?? 'ACTIVE'});
-      res.json(registration);
-    }
-  } catch (error) {
-    console.log(error)
     res.status(500).send('Erro ao acessar o banco de dados');
   }
 });
