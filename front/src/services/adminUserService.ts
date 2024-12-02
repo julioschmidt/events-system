@@ -34,4 +34,34 @@ export const adminUserService = {
       return false;
     }
   },
+
+  getUser: async () => {
+    try {
+      if (navigator.onLine) {
+        // Tenta buscar dados da API quando online
+        const response = await api.get('/users/token');
+        return response.data.data;
+      } else {
+        // Quando offline, busca o token no localStorage e decodifica
+        const token = localStorage.getItem('token');
+
+        if (token) {
+          try {
+            const decodedToken = jwtDecode<any>(token); // Altere <any> para o tipo correto se souber
+            return decodedToken;
+          } catch (decodeError) {
+            console.error('Erro ao decodificar o token:', decodeError);
+            return null;
+          }
+        } else {
+          console.error('Token não encontrado no localStorage');
+          return null;
+        }
+      }
+    } catch (error) {
+      // Em caso de erro (como falha na rede), retorna null
+      console.error('Erro ao buscar eventos da API:', error);
+      return null;
+    }
+  },
 };

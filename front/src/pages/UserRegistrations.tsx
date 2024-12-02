@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
+import { getUserEmailById } from '../utils/indexedDB';
 
 interface Event {
   id: number;
@@ -52,6 +53,17 @@ const UserRegistrations: React.FC = () => {
   const handleCancelRegistration = async (registrationId: number) => {
     try {
       await api.delete(`/registrations/${registrationId}`);
+
+      const registration = registrations.find(
+        (reg) => reg.id === registrationId
+      );
+      const userEmail = getUserEmailById(user!.id);
+      await api.post('/mails', {
+        type: 'cancelation',
+        eventTitle: registration!.event!.title,
+        eventDate: registration!.event!.date,
+        userEmail: userEmail,
+      });
       alert('Inscrição cancelada com sucesso!');
       // Atualizar a lista de inscrições após o cancelamento
       setRegistrations(

@@ -170,6 +170,13 @@ const EventDetailsAdmin: React.FC = () => {
           userId: selectedUserId,
           eventId: Number(id),
         });
+        const userEmail = await getUserEmailById(selectedUserId);
+        await api.post('/mails', {
+          type: 'checkin',
+          userEmail: userEmail,
+          eventTitle: event!.title,
+          date: Date.now(),
+        });
       } else {
         const userEmail = await getUserEmailById(selectedUserId);
         // Salva localmente se offline
@@ -193,6 +200,13 @@ const EventDetailsAdmin: React.FC = () => {
         await api.post(`/registrations`, {
           userId: selectedUserId,
           eventId: Number(id),
+        });
+        const userEmail = await getUserEmailById(selectedUserId);
+        await api.post('/mails', {
+          type: 'registration',
+          eventTitle: event!.title,
+          eventDate: event!.date,
+          userEmail: userEmail,
         });
       } else {
         const userEmail = await getUserEmailById(selectedUserId);

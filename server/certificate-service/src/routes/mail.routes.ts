@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import axios from 'axios';	
-import { sendCertificateEmail } from '../mail.service';
+import { sendCertificateEmail, sendRegistrationEmail, sendCheckinEmail, sendCancelationEmail } from '../mail.service';
 import Certificate from '../certificate.model';
 import verifyToken from '../auth.middleware';
 
@@ -58,17 +58,30 @@ const mailRouter = Router();
  */
 mailRouter.post('/', verifyToken, async (req, res) => {
     try {
-      const { userId, eventId } = req.body;
+      const { userId, eventId, eventTitle, date, eventDate, userEmail, type } = req.body;
+      let email = null;
+      switch (type) {
+        case 'checkin':
+          email = await sendCheckinEmail(eventTitle, date, userEmail);
+          break;
+        case 'registration':
+          email = await sendRegistrationEmail(eventTitle, eventDate, userEmail);
+          break;
+        case 'cancelation':
+          email = await sendCancelationEmail(eventTitle, eventDate, userEmail);
+          break;
+        case 'certificate':
+          const userMail = req.user!.email;
 
-      const userMail = req.user!.email;
+          const certificate = await Certificate.findOne({ where: { userId, eventId }, raw: true });
 
-      const certificate = await Certificate.findOne({ where: { userId, eventId }, raw: true });
+          if (!certificate) {
+            return res.status(404).send('Certificado não encontrado');
+          }
 
-      if (!certificate) {
-        return res.status(404).send('Certificado não encontrado');
+          email = await sendCertificateEmail(userEmail, certificate.certificadoCode);
+          break;
       }
-
-      const email = await sendCertificateEmail(userMail, certificate.certificadoCode);
       res.json(email);
     } catch (error) {
       console.log(error);

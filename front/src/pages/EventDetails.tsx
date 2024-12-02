@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { eventService } from '../services/eventService';
 import api from '../api';
-import UserRegistrationForm from '../components/UserRegistrationForm';
-import { set } from 'react-hook-form';
+import {
+  getAllDataFromIndexedDB,
+  getUserEmailById,
+  initDB,
+  saveDataToIndexedDB,
+  updateRegistrationByEventAndEmail,
+} from '../utils/indexedDB';
+import { adminUserService } from '../services/adminUserService';
 
 interface Event {
   id: string;
@@ -31,8 +36,19 @@ const EventDetails: React.FC = () => {
   useEffect(() => {
     const fetchEventDetails = async () => {
       try {
-        const response = await api.get(`/events/${id}`);
-        setEvent(response.data);
+        if (navigator.onLine) {
+          const response = await api.get(`/events/${id}`);
+          setEvent(response.data);
+        } else {
+          const db = await initDB();
+          const eventData = await db.get('events', Number(id!)); // Busca o evento pelo ID
+
+          if (eventData) {
+            setEvent(eventData); // Atualiza o estado com os dados do IndexedDB
+          } else {
+            console.error('Evento não encontrado no IndexedDB.');
+          }
+        }
       } catch (error) {
         console.error('Erro ao buscar detalhes do evento:', error);
       } finally {
@@ -42,21 +58,39 @@ const EventDetails: React.FC = () => {
 
     const fetchUser = async () => {
       try {
-        const response = await api.get('/users/token');
-        setUser(response.data.data);
-        const responseRegistration = await api.get(
-          `/registrations/${response.data.data.id}/${id}`
-        );
-        console.log(responseRegistration.data);
-        if (!responseRegistration.data) {
+        let registration;
+        if (navigator.onLine) {
+          const response = await api.get('/users/token');
+          setUser(response.data.data);
+          const responseRegistration = await api.get(
+            `/registrations/${response.data.data.id}/${id}`
+          );
+          registration = responseRegistration.data;
+        } else {
+          const user = await adminUserService.getUser();
+          const registrations = await getAllDataFromIndexedDB('registrations');
+          const filteredRegistrations = registrations.filter(
+            (registration) => registration.eventId == id
+          );
+          registration = filteredRegistrations.find((registration) => {
+            return registration.userEmail &&
+              registration.userEmail == user.email
+              ? registration
+              : registration.userId == user.id
+              ? registration
+              : null;
+          });
+        }
+
+        if (!registration) {
           setCanCheckin(false);
           setRegisterUserButton(true);
           setUserCheckedInWarning(false);
-        } else if (responseRegistration.data.status === 'CHECKED_IN') {
+        } else if (registration.status === 'CHECKED_IN') {
           setCanCheckin(false);
           setUserCheckedInWarning(true);
           setRegisterUserButton(false);
-        } else if (responseRegistration.data.status === 'ACTIVE') {
+        } else if (registration.status === 'ACTIVE') {
           setCanCheckin(true);
           setUserCheckedInWarning(false);
           setRegisterUserButton(false);
@@ -72,10 +106,25 @@ const EventDetails: React.FC = () => {
 
   const handleCheckIn = async () => {
     try {
-      await api.post(`/registrations/checkin`, {
-        userId: user!.id,
-        eventId: Number(id),
-      });
+      if (navigator.onLine) {
+        await api.post(`/registrations/checkin`, {
+          userId: user!.id,
+          eventId: Number(id),
+        });
+        const userEmail = await getUserEmailById(user!.id);
+        await api.post('/mails', {
+          type: 'checkin',
+          eventTitle: event!.title,
+          date: Date.now(),
+          userEmail: userEmail,
+        });
+      } else {
+        const userEmail = await getUserEmailById(user!.id);
+        await updateRegistrationByEventAndEmail(Number(id), userEmail, {
+          status: 'CHECKED_IN',
+        });
+      }
+
       alert('Check-in realizado com sucesso!');
       navigate(`/events`);
     } catch (error) {
@@ -85,10 +134,29 @@ const EventDetails: React.FC = () => {
 
   const handleRegisterUser = async () => {
     try {
-      await api.post(`/registrations`, {
-        userId: user!.id,
-        eventId: Number(id),
-      });
+      if (navigator.onLine) {
+        await api.post(`/registrations`, {
+          userId: user!.id,
+          eventId: Number(id),
+        });
+        const userEmail = await getUserEmailById(user!.id);
+        await api.post('/mails', {
+          type: 'registration',
+          eventTitle: event!.title,
+          eventDate: event!.date,
+          userEmail: userEmail,
+        });
+      } else {
+        const userEmail = await getUserEmailById(user!.id);
+        // Salva localmente se offline
+        await saveDataToIndexedDB('registrations', [
+          {
+            eventId: Number(id),
+            userEmail: userEmail,
+            status: 'ACTIVE',
+          },
+        ]);
+      }
       alert('Usuário registrado com sucesso!');
       setRegisterUserButton(false);
       setCanCheckin(true);

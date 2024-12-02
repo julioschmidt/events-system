@@ -13,23 +13,13 @@ const SyncButton: React.FC = () => {
     setMessage('Sincronizando...'); // Mensagem inicial
 
     try {
-      const userSyncResponse = await syncLocalDataToAPI('users', '/users');
-      if (!userSyncResponse) {
-        throw new Error('Erro ao sincronizar usuários.');
-      }
+      await syncLocalDataToAPI('users', '/users');
 
       await clearStore('users');
 
       const usersResponse = await fetchAndSaveDataFromAPI('/users', 'users');
 
-      const registrationSyncResponse = await syncLocalDataToAPI(
-        'registrations',
-        '/registrations'
-      );
-
-      if (!registrationSyncResponse) {
-        throw new Error('Erro ao sincronizar registros.');
-      }
+      await syncLocalDataToAPI('registrations', '/registrations');
 
       await clearStore('registrations');
 

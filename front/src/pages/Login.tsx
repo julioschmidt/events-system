@@ -29,15 +29,26 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleCreatedUser = (user: any) => {
+  const handleCreatedUser = () => {
     setIsRegistering(false);
+  };
+
+  const getCreatedUserInputs = (inputs: {
+    email: string;
+    password: string;
+  }) => {
+    setEmail(inputs.email);
+    setPassword(inputs.password);
   };
 
   return (
     <div className="flex items-center justify-center h-screen w-screen">
       {isRegistering ? (
         // Exibe o formulário de cadastro
-        <UserRegistrationForm handleCreatedUser={handleCreatedUser} />
+        <UserRegistrationForm
+          handleCreatedUser={handleCreatedUser}
+          getInputs={getCreatedUserInputs}
+        />
       ) : (
         <>
           <div className="p-6 border rounded shadow-lg max-w-md">

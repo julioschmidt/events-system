@@ -13,11 +13,13 @@ interface UserData {
 interface UserRegistrationFormProps {
   eventId?: number; // Tornar opcional, para o caso de não estar sempre presente
   handleCreatedUser?: (user: UserData) => void;
+  getInputs?: (inputs: { email: string; password: string }) => void;
 }
 
 const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
   eventId,
   handleCreatedUser,
+  getInputs,
 }) => {
   const [formData, setFormData] = useState<UserData>({
     id: 0,
@@ -40,8 +42,6 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
       if (navigator.onLine) {
         // Envia os dados para a API
         const response = await api.post('/users', formData);
-        console.log(formData);
-        console.log(response.data);
 
         if (response.status !== 201 || !response.data) {
           throw new Error('Erro ao cadastrar usuário.');
@@ -62,6 +62,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
         if (handleCreatedUser) {
           handleCreatedUser(response.data);
         }
+
         setMessage('Usuário cadastrado com sucesso na API!');
       } else {
         const user = { ...formData, id: Date.now() };
@@ -79,6 +80,9 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
         }
 
         setMessage('Sem conexão. Usuário salvo localmente.');
+      }
+      if (getInputs) {
+        getInputs({ email: formData.email, password: formData.password });
       }
     } catch (error) {
       setMessage('Erro ao cadastrar usuário.');

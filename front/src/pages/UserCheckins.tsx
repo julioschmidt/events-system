@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import api from '../api'; // Importe seu arquivo api.js ou api.ts
 
 interface Event {
@@ -20,7 +19,6 @@ const UserCheckins: React.FC = () => {
   const [checkins, setCheckins] = useState<Checkin[]>([]);
   const [user, setUser] = useState<{ id: number } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserAndCheckins = async () => {
@@ -62,6 +60,7 @@ const UserCheckins: React.FC = () => {
     if (user) {
       try {
         await api.post('/mails', {
+          type: 'certificate',
           userId: user.id,
           eventId: eventId,
         });
