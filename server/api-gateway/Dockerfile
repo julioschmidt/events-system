@@ -4,6 +4,8 @@ FROM node:20 AS build
 # Definir o diretório de trabalho dentro do container
 WORKDIR /app
 
+RUN mkdir -p logs && chmod -R 777 logs
+
 # Copiar o package.json e package-lock.json (se existir) para instalar dependências
 COPY package*.json ./
 
