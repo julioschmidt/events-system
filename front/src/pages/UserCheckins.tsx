@@ -66,6 +66,7 @@ const UserCheckins: React.FC = () => {
         });
         alert('Certificado enviado por e-mail!');
       } catch (error) {
+        alert('Você ainda não gerou o certificado para este evento.');
         console.error('Erro ao enviar certificado por e-mail:', error);
       }
     }
