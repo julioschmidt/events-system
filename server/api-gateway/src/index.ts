@@ -6,7 +6,7 @@ import { createProxyMiddleware, Options } from 'http-proxy-middleware';
 
 const app = express();
 
-const logStream = fs.createWriteStream('./logs/access.log', { flags: 'a' });
+const logStream = fs.createWriteStream('access.log', { flags: 'a' });
 
 app.use(cors());
 app.use(express.json());
